@@ -41,7 +41,6 @@ import {
   type VehicleRate,
   type PackageTour,
   ARUTHRA_OPERATOR_DATA,
-  ARUTHRA_ROUTES,
   fetchAruthraLiveRoutes,
   type AruthraRoute
 } from "@/data/travel-data";
@@ -119,7 +118,7 @@ export default function HomePage() {
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
 
   // Aruthra Bus Services Search, Real-Time Data & Filter State (redBus Integration)
-  const [busRoutes, setBusRoutes] = useState<AruthraRoute[]>(ARUTHRA_ROUTES);
+  const [busRoutes, setBusRoutes] = useState<AruthraRoute[]>([]);
   const [isLiveFromRedBus, setIsLiveFromRedBus] = useState<boolean>(false);
   const [isFetchingLive, setIsFetchingLive] = useState<boolean>(true);
   const [lastLiveSyncTime, setLastLiveSyncTime] = useState<string | null>(null);
@@ -1237,8 +1236,31 @@ _Namaskar Vishal Travels! Please check vehicle availability for my journey and s
             </div>
           </div>
 
-          {/* 4. Display Bus Routes: Table View or Cards View */}
-          {filteredBusRoutes.length === 0 ? (
+          {/* 4. Display Bus Routes: Table View, Cards View or Live Loading Skeleton */}
+          {isFetchingLive && busRoutes.length === 0 ? (
+            /* SKELETON LOADING STATE WHILE FETCHING REAL-TIME REDBUS DATA */
+            <div className="bus-routes-grid">
+              {[1, 2, 3, 4, 5, 6].map((idx) => (
+                <div key={idx} className="bus-route-card-clean" style={{ opacity: 0.75 }}>
+                  <div>
+                    <div style={{ width: "90px", height: "13px", background: "#E2E8F0", borderRadius: "4px", marginBottom: "8px" }} />
+                    <div className="bus-route-main-row">
+                      <div style={{ width: "190px", height: "22px", background: "#E2E8F0", borderRadius: "6px" }} />
+                      <div className="bus-route-price-box">
+                        <div style={{ width: "65px", height: "22px", background: "#E2E8F0", borderRadius: "6px" }} />
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <div className="bus-route-dotted-divider" aria-hidden="true"></div>
+                    <div className="bus-route-bottom-row">
+                      <div style={{ width: "110px", height: "36px", background: "#FECACA", borderRadius: "9999px" }} />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : filteredBusRoutes.length === 0 ? (
             <div style={{ background: "#ffffff", padding: "48px 24px", borderRadius: "16px", textAlign: "center", border: "1px dashed #CBD5E1", margin: "24px 0" }}>
               <Bus size={42} color="var(--redbus-primary)" strokeWidth={1.5} style={{ margin: "0 auto 12px" }} />
               <h4 style={{ fontSize: "1.2rem", color: "var(--blue-900)", marginBottom: "6px" }}>

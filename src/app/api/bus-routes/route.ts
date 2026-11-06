@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { ARUTHRA_ROUTES, type AruthraRoute } from "@/data/travel-data";
+import { type AruthraRoute } from "@/data/travel-data";
 
 export async function GET() {
   try {
@@ -80,13 +80,6 @@ export async function GET() {
       const firstBus = item.col2Label ? `${item.col2Label}` : "21:00";
       const lastBus = item.col3Label ? `${item.col3Label}` : "23:30";
 
-      // Match against static list for rich boarding/dropping info if present
-      const existing = ARUTHRA_ROUTES.find(
-        (r) =>
-          r.source.toLowerCase() === source.toLowerCase() &&
-          r.destination.toLowerCase() === destination.toLowerCase()
-      );
-
       const srcLower = source.toLowerCase();
       const category = srcLower.includes("coimbatore")
         ? "coimbatore"
@@ -98,18 +91,18 @@ export async function GET() {
         id: `live-${idx + 1}-${source.toLowerCase().replace(/[^a-z0-9]/g, "")}-${destination.toLowerCase().replace(/[^a-z0-9]/g, "")}`,
         source,
         destination,
-        distanceKm: existing?.distanceKm || 250,
-        duration: existing?.duration || "5.0 hrs",
-        durationFormatted: existing?.durationFormatted || "05:00 hrs",
+        distanceKm: 250,
+        duration: "5.0 hrs",
+        durationFormatted: "05:00 hrs",
         busOptionsText,
-        busType: existing?.busType || "A/C Sleeper / Seater (2+1)",
+        busType: "A/C Sleeper / Seater (2+1)",
         firstBus,
         lastBus,
         departureWindow: `${firstBus} - ${lastBus}`,
-        startingPrice: fareNum || existing?.startingPrice || 280,
-        startingPriceFormatted: fareNum ? `₹${Math.round(fareNum)}` : existing?.startingPriceFormatted || "₹280",
-        boardingPoints: existing?.boardingPoints || [`${source} Central Bus Stand`],
-        droppingPoints: existing?.droppingPoints || [`${destination} Omni / Central Stand`],
+        startingPrice: fareNum || 280,
+        startingPriceFormatted: fareNum ? `₹${Math.round(fareNum)}` : "₹280",
+        boardingPoints: [`${source} Omni / Central Bus Stand`],
+        droppingPoints: [`${destination} Omni / Central Stand`],
         redBusUrl,
         category,
       };
@@ -125,16 +118,13 @@ export async function GET() {
     });
   } catch (error: unknown) {
     const errMessage = error instanceof Error ? error.message : "Unknown error";
-    console.warn("Live RedBus fetch failed, falling back to static verified schedule:", errMessage);
+    console.warn("Live RedBus fetch failed:", errMessage);
 
     return NextResponse.json({
-      success: true,
+      success: false,
       isLive: false,
-      fallback: true,
-      source: "verified-schedule-cache",
-      count: ARUTHRA_ROUTES.length,
-      lastUpdated: new Date().toISOString(),
-      routes: ARUTHRA_ROUTES,
+      count: 0,
+      routes: [],
       error: errMessage,
     });
   }
