@@ -546,6 +546,414 @@ export const REVIEWS = [
   }
 ];
 
+export interface AruthraRoute {
+  id: string;
+  source: string;
+  destination: string;
+  distanceKm: number;
+  duration: string;
+  durationFormatted: string;
+  busOptionsText: string;
+  busType: string;
+  firstBus: string;
+  lastBus: string;
+  departureWindow: string;
+  startingPrice: number;
+  startingPriceFormatted: string;
+  boardingPoints: string[];
+  droppingPoints: string[];
+  redBusUrl: string;
+  category: "coimbatore" | "tirupur" | "return";
+}
+
+export const ARUTHRA_OPERATOR_DATA = {
+  name: "Aruthra Tours and Travels",
+  slug: "aruthra-tours-and-travels",
+  redBusUrl: "https://www.redbus.in/travels/aruthra-tours-and-travels",
+  rating: 4.2,
+  reviewsCount: "350+",
+  minPrice: 280,
+  maxPrice: 750,
+  priceRangeFormatted: "₹280 Onwards",
+  description: "Official redBus partner operator running high-frequency daily intercity scheduled buses across Tamil Nadu. Connecting textile and industrial corridors (Coimbatore & Tirupur) with Madurai, Sivagangai, Ramanathapuram, Paramakudi, and Kalayarkoil.",
+  amenities: [
+    "A/C Sleeper (2+1) & NON A/C Seater/Sleeper",
+    "Live GPS Bus Tracking via redBus",
+    "Mobile & USB Fast Charging Ports",
+    "Reading Lamps & Chilled AC Climate Control",
+    "Emergency Exit & Fire Safety Kit",
+    "Fresh Pillows & Clean Blankets"
+  ],
+  hubLocations: [
+    "Coimbatore (Omni Bus Stand, Gandhipuram, Singanallur, Hope College)",
+    "Tirupur (Old Bus Stand, Avinashi Road, Kangeyam Road)",
+    "Madurai (Mattuthavani Integrated Bus Terminus, Arappalayam, Periyar)",
+    "Ramanathapuram (Old & New Bus Stands, Bharathi Nagar)",
+    "Sivagangai, Paramakudi & Kalayarkoil"
+  ]
+};
+
+export const ARUTHRA_ROUTES: AruthraRoute[] = [
+  {
+    id: "ar-mdu-cbe",
+    source: "Madurai",
+    destination: "Coimbatore",
+    distanceKm: 215,
+    duration: "4.5 hrs",
+    durationFormatted: "04:45 hrs",
+    busOptionsText: "5 bus options",
+    busType: "A/C Sleeper (2+1)",
+    firstBus: "22:00 (10:00 PM)",
+    lastBus: "23:15 (11:15 PM)",
+    departureWindow: "22:00 - 23:15",
+    startingPrice: 280,
+    startingPriceFormatted: "₹280",
+    boardingPoints: ["Mattuthavani Bus Stand", "Arappalayam", "Periyar Bus Stand"],
+    droppingPoints: ["Singanallur", "Gandhipuram", "Omni Bus Stand Coimbatore"],
+    redBusUrl: "https://www.redbus.in/bus-tickets/madurai-to-coimbatore",
+    category: "return"
+  },
+  {
+    id: "ar-cbe-svg",
+    source: "Coimbatore",
+    destination: "Sivagangai",
+    distanceKm: 260,
+    duration: "5.5 hrs",
+    durationFormatted: "05:30 hrs",
+    busOptionsText: "4 bus options",
+    busType: "A/C Sleeper (2+1)",
+    firstBus: "21:30 (09:30 PM)",
+    lastBus: "22:15 (10:15 PM)",
+    departureWindow: "21:30 - 22:15",
+    startingPrice: 330,
+    startingPriceFormatted: "₹330",
+    boardingPoints: ["Gandhipuram", "Singanallur", "Ondipudur", "Palladam"],
+    droppingPoints: ["Sivagangai Bus Stand", "Collectorate Junction"],
+    redBusUrl: "https://www.redbus.in/bus-tickets/coimbatore-to-sivagangai",
+    category: "coimbatore"
+  },
+  {
+    id: "ar-cbe-klk",
+    source: "Coimbatore",
+    destination: "Kalayarkoil",
+    distanceKm: 275,
+    duration: "6.0 hrs",
+    durationFormatted: "06:00 hrs",
+    busOptionsText: "4 bus options",
+    busType: "A/C Sleeper (2+1)",
+    firstBus: "21:30 (09:30 PM)",
+    lastBus: "22:00 (10:00 PM)",
+    departureWindow: "21:30 - 22:00",
+    startingPrice: 330,
+    startingPriceFormatted: "₹330",
+    boardingPoints: ["Gandhipuram Omni Stand", "Singanallur"],
+    droppingPoints: ["Kalayarkoil Bus Stand", "Temple Junction"],
+    redBusUrl: "https://www.redbus.in/bus-tickets/coimbatore-to-kalayarkoil",
+    category: "coimbatore"
+  },
+  {
+    id: "ar-klk-cbe",
+    source: "Kalayarkoil",
+    destination: "Coimbatore",
+    distanceKm: 275,
+    duration: "6.0 hrs",
+    durationFormatted: "06:00 hrs",
+    busOptionsText: "4 bus options",
+    busType: "A/C Sleeper (2+1)",
+    firstBus: "20:30 (08:30 PM)",
+    lastBus: "21:15 (09:15 PM)",
+    departureWindow: "20:30 - 21:15",
+    startingPrice: 350,
+    startingPriceFormatted: "₹350",
+    boardingPoints: ["Kalayarkoil Bus Stand"],
+    droppingPoints: ["Singanallur", "Gandhipuram Omni Stand"],
+    redBusUrl: "https://www.redbus.in/bus-tickets/kalayarkoil-to-coimbatore",
+    category: "return"
+  },
+  {
+    id: "ar-cbe-mdu",
+    source: "Coimbatore",
+    destination: "Madurai",
+    distanceKm: 215,
+    duration: "4.5 hrs",
+    durationFormatted: "04:45 hrs",
+    busOptionsText: "5 bus options",
+    busType: "A/C Sleeper (2+1)",
+    firstBus: "21:45 (09:45 PM)",
+    lastBus: "22:30 (10:30 PM)",
+    departureWindow: "21:45 - 22:30",
+    startingPrice: 280,
+    startingPriceFormatted: "₹280",
+    boardingPoints: ["Gandhipuram Omni Stand", "Singanallur", "Hope College", "Sulur"],
+    droppingPoints: ["Mattuthavani Integrated Bus Terminus", "Arappalayam", "Periyar"],
+    redBusUrl: "https://www.redbus.in/bus-tickets/coimbatore-to-madurai",
+    category: "coimbatore"
+  },
+  {
+    id: "ar-cbe-rmd",
+    source: "Coimbatore",
+    destination: "Ramanathapuram",
+    distanceKm: 330,
+    duration: "7.25 hrs",
+    durationFormatted: "07:15 hrs",
+    busOptionsText: "4 bus options",
+    busType: "NON A/C Seater / Sleeper (2+1)",
+    firstBus: "21:00 (09:00 PM)",
+    lastBus: "21:30 (09:30 PM)",
+    departureWindow: "21:00 - 21:30",
+    startingPrice: 350,
+    startingPriceFormatted: "₹350",
+    boardingPoints: ["Gandhipuram", "Singanallur", "Sulur", "Palladam"],
+    droppingPoints: ["Ramanathapuram New Bus Stand", "Bharathi Nagar"],
+    redBusUrl: "https://www.redbus.in/bus-tickets/coimbatore-to-ramanathapuram",
+    category: "coimbatore"
+  },
+  {
+    id: "ar-rmd-cbe",
+    source: "Ramanathapuram",
+    destination: "Coimbatore",
+    distanceKm: 330,
+    duration: "7.5 hrs",
+    durationFormatted: "07:30 hrs",
+    busOptionsText: "4 bus options",
+    busType: "NON A/C Seater / Sleeper (2+1)",
+    firstBus: "20:30 (08:30 PM)",
+    lastBus: "21:00 (09:00 PM)",
+    departureWindow: "20:30 - 21:00",
+    startingPrice: 350,
+    startingPriceFormatted: "₹350",
+    boardingPoints: ["Ramanathapuram Bus Stand", "Aruthra Booking Office"],
+    droppingPoints: ["Singanallur", "Gandhipuram", "Omni Bus Stand"],
+    redBusUrl: "https://www.redbus.in/bus-tickets/ramanathapuram-to-coimbatore",
+    category: "return"
+  },
+  {
+    id: "ar-svg-cbe",
+    source: "Sivagangai",
+    destination: "Coimbatore",
+    distanceKm: 260,
+    duration: "5.5 hrs",
+    durationFormatted: "05:30 hrs",
+    busOptionsText: "4 bus options",
+    busType: "A/C Sleeper (2+1)",
+    firstBus: "21:00 (09:00 PM)",
+    lastBus: "21:45 (09:45 PM)",
+    departureWindow: "21:00 - 21:45",
+    startingPrice: 330,
+    startingPriceFormatted: "₹330",
+    boardingPoints: ["Sivagangai Bus Stand", "Aruthra Travels Branch"],
+    droppingPoints: ["Singanallur", "Hope College", "Gandhipuram Omni Stand"],
+    redBusUrl: "https://www.redbus.in/bus-tickets/sivagangai-to-coimbatore",
+    category: "return"
+  },
+  {
+    id: "ar-cbe-pmk",
+    source: "Coimbatore",
+    destination: "Paramakudi",
+    distanceKm: 295,
+    duration: "6.5 hrs",
+    durationFormatted: "06:30 hrs",
+    busOptionsText: "4 bus options",
+    busType: "NON A/C Seater / Sleeper (2+1)",
+    firstBus: "21:15 (09:15 PM)",
+    lastBus: "21:45 (09:45 PM)",
+    departureWindow: "21:15 - 21:45",
+    startingPrice: 340,
+    startingPriceFormatted: "₹340",
+    boardingPoints: ["Gandhipuram", "Singanallur", "Sulur"],
+    droppingPoints: ["Paramakudi Bus Stand", "Five Corner"],
+    redBusUrl: "https://www.redbus.in/bus-tickets/coimbatore-to-paramakudi",
+    category: "coimbatore"
+  },
+  {
+    id: "ar-pmk-cbe",
+    source: "Paramakudi",
+    destination: "Coimbatore",
+    distanceKm: 295,
+    duration: "6.5 hrs",
+    durationFormatted: "06:30 hrs",
+    busOptionsText: "4 bus options",
+    busType: "NON A/C Seater / Sleeper (2+1)",
+    firstBus: "20:45 (08:45 PM)",
+    lastBus: "21:15 (09:15 PM)",
+    departureWindow: "20:45 - 21:15",
+    startingPrice: 340,
+    startingPriceFormatted: "₹340",
+    boardingPoints: ["Paramakudi Bus Stand", "Aruthra Travels Counter"],
+    droppingPoints: ["Singanallur", "Hope College", "Gandhipuram"],
+    redBusUrl: "https://www.redbus.in/bus-tickets/paramakudi-to-coimbatore",
+    category: "return"
+  },
+  {
+    id: "ar-tpr-mdu",
+    source: "Tirupur",
+    destination: "Madurai",
+    distanceKm: 170,
+    duration: "3.75 hrs",
+    durationFormatted: "03:45 hrs",
+    busOptionsText: "4 bus options",
+    busType: "A/C Sleeper (2+1)",
+    firstBus: "22:30 (10:30 PM)",
+    lastBus: "23:15 (11:15 PM)",
+    departureWindow: "22:30 - 23:15",
+    startingPrice: 260,
+    startingPriceFormatted: "₹260",
+    boardingPoints: ["Old Bus Stand Tirupur", "Avinashi Road", "Dharapuram Road"],
+    droppingPoints: ["Mattuthavani Bus Stand", "Arappalayam"],
+    redBusUrl: "https://www.redbus.in/bus-tickets/tirupur-to-madurai",
+    category: "tirupur"
+  },
+  {
+    id: "ar-mdu-tpr",
+    source: "Madurai",
+    destination: "Tirupur",
+    distanceKm: 170,
+    duration: "3.75 hrs",
+    durationFormatted: "03:45 hrs",
+    busOptionsText: "4 bus options",
+    busType: "A/C Sleeper (2+1)",
+    firstBus: "22:00 (10:00 PM)",
+    lastBus: "23:00 (11:00 PM)",
+    departureWindow: "22:00 - 23:00",
+    startingPrice: 260,
+    startingPriceFormatted: "₹260",
+    boardingPoints: ["Mattuthavani Bus Stand", "Arappalayam"],
+    droppingPoints: ["Old Bus Stand Tirupur", "Avinashi Road"],
+    redBusUrl: "https://www.redbus.in/bus-tickets/madurai-to-tirupur",
+    category: "return"
+  },
+  {
+    id: "ar-tpr-rmd",
+    source: "Tirupur",
+    destination: "Ramanathapuram",
+    distanceKm: 285,
+    duration: "6.25 hrs",
+    durationFormatted: "06:15 hrs",
+    busOptionsText: "4 bus options",
+    busType: "NON A/C Seater / Sleeper (2+1)",
+    firstBus: "21:45 (09:45 PM)",
+    lastBus: "22:15 (10:15 PM)",
+    departureWindow: "21:45 - 22:15",
+    startingPrice: 330,
+    startingPriceFormatted: "₹330",
+    boardingPoints: ["Old Bus Stand Tirupur", "Kangeyam Road"],
+    droppingPoints: ["Ramanathapuram Bus Stand", "Kenikarai"],
+    redBusUrl: "https://www.redbus.in/bus-tickets/tirupur-to-ramanathapuram",
+    category: "tirupur"
+  },
+  {
+    id: "ar-rmd-tpr",
+    source: "Ramanathapuram",
+    destination: "Tirupur",
+    distanceKm: 285,
+    duration: "6.25 hrs",
+    durationFormatted: "06:15 hrs",
+    busOptionsText: "4 bus options",
+    busType: "NON A/C Seater / Sleeper (2+1)",
+    firstBus: "20:30 (08:30 PM)",
+    lastBus: "21:00 (09:00 PM)",
+    departureWindow: "20:30 - 21:00",
+    startingPrice: 330,
+    startingPriceFormatted: "₹330",
+    boardingPoints: ["Ramanathapuram Bus Stand"],
+    droppingPoints: ["Old Bus Stand Tirupur", "Palladam"],
+    redBusUrl: "https://www.redbus.in/bus-tickets/ramanathapuram-to-tirupur",
+    category: "return"
+  },
+  {
+    id: "ar-tpr-svg",
+    source: "Tirupur",
+    destination: "Sivagangai",
+    distanceKm: 220,
+    duration: "4.5 hrs",
+    durationFormatted: "04:30 hrs",
+    busOptionsText: "4 bus options",
+    busType: "A/C Sleeper (2+1)",
+    firstBus: "22:15 (10:15 PM)",
+    lastBus: "22:45 (10:45 PM)",
+    departureWindow: "22:15 - 22:45",
+    startingPrice: 310,
+    startingPriceFormatted: "₹310",
+    boardingPoints: ["Old Bus Stand Tirupur", "Palladam Road"],
+    droppingPoints: ["Sivagangai Bus Stand", "Madurai Road Junction"],
+    redBusUrl: "https://www.redbus.in/bus-tickets/tirupur-to-sivagangai",
+    category: "tirupur"
+  },
+  {
+    id: "ar-svg-tpr",
+    source: "Sivagangai",
+    destination: "Tirupur",
+    distanceKm: 220,
+    duration: "4.5 hrs",
+    durationFormatted: "04:30 hrs",
+    busOptionsText: "4 bus options",
+    busType: "A/C Sleeper (2+1)",
+    firstBus: "21:00 (09:00 PM)",
+    lastBus: "21:30 (09:30 PM)",
+    departureWindow: "21:00 - 21:30",
+    startingPrice: 310,
+    startingPriceFormatted: "₹310",
+    boardingPoints: ["Sivagangai Bus Stand"],
+    droppingPoints: ["Old Bus Stand Tirupur"],
+    redBusUrl: "https://www.redbus.in/bus-tickets/sivagangai-to-tirupur",
+    category: "return"
+  },
+  {
+    id: "ar-tpr-pmk",
+    source: "Tirupur",
+    destination: "Paramakudi",
+    distanceKm: 250,
+    duration: "5.5 hrs",
+    durationFormatted: "05:30 hrs",
+    busOptionsText: "4 bus options",
+    busType: "NON A/C Seater / Sleeper (2+1)",
+    firstBus: "22:00 (10:00 PM)",
+    lastBus: "22:30 (10:30 PM)",
+    departureWindow: "22:00 - 22:30",
+    startingPrice: 320,
+    startingPriceFormatted: "₹320",
+    boardingPoints: ["Old Bus Stand Tirupur", "Avinashi Road"],
+    droppingPoints: ["Paramakudi Bus Stand"],
+    redBusUrl: "https://www.redbus.in/bus-tickets/tirupur-to-paramakudi",
+    category: "tirupur"
+  },
+  {
+    id: "ar-pmk-tpr",
+    source: "Paramakudi",
+    destination: "Tirupur",
+    distanceKm: 250,
+    duration: "5.5 hrs",
+    durationFormatted: "05:30 hrs",
+    busOptionsText: "4 bus options",
+    busType: "NON A/C Seater / Sleeper (2+1)",
+    firstBus: "20:45 (08:45 PM)",
+    lastBus: "21:15 (09:15 PM)",
+    departureWindow: "20:45 - 21:15",
+    startingPrice: 320,
+    startingPriceFormatted: "₹320",
+    boardingPoints: ["Paramakudi Bus Stand"],
+    droppingPoints: ["Old Bus Stand Tirupur"],
+    redBusUrl: "https://www.redbus.in/bus-tickets/paramakudi-to-tirupur",
+    category: "return"
+  }
+];
+
+export async function fetchAruthraLiveRoutes(): Promise<{ isLive: boolean; routes: AruthraRoute[]; lastUpdated?: string }> {
+  try {
+    const res = await fetch("/api/bus-routes", { cache: "no-store" });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    return {
+      isLive: Boolean(data.isLive),
+      routes: Array.isArray(data.routes) && data.routes.length > 0 ? data.routes : ARUTHRA_ROUTES,
+      lastUpdated: data.lastUpdated,
+    };
+  } catch (err) {
+    console.warn("Could not fetch live bus routes:", err);
+    return { isLive: false, routes: ARUTHRA_ROUTES };
+  }
+}
+
 export const FAQS = [
   {
     q: "What vehicle types and seating capacities are available for hire in Pune?",

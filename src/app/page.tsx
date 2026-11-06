@@ -21,7 +21,14 @@ import {
   Car,
   Bus,
   Check,
-  Sparkles
+  Sparkles,
+  ArrowRight,
+  ArrowLeftRight,
+  Search,
+  RotateCcw,
+  Ticket,
+  ChevronDown,
+  ChevronUp
 } from "lucide-react";
 import {
   SITE_CONFIG,
@@ -32,7 +39,11 @@ import {
   FAQS,
   calculateFare,
   type VehicleRate,
-  type PackageTour
+  type PackageTour,
+  ARUTHRA_OPERATOR_DATA,
+  ARUTHRA_ROUTES,
+  fetchAruthraLiveRoutes,
+  type AruthraRoute
 } from "@/data/travel-data";
 
 export default function HomePage() {
@@ -106,6 +117,109 @@ export default function HomePage() {
 
   // FAQ Accordion State (first item open by default)
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
+
+  // Aruthra Bus Services Search, Real-Time Data & Filter State (redBus Integration)
+  const [busRoutes, setBusRoutes] = useState<AruthraRoute[]>(ARUTHRA_ROUTES);
+  const [isLiveFromRedBus, setIsLiveFromRedBus] = useState<boolean>(false);
+  const [isFetchingLive, setIsFetchingLive] = useState<boolean>(true);
+  const [lastLiveSyncTime, setLastLiveSyncTime] = useState<string | null>(null);
+  const [busSource, setBusSource] = useState<string>("all");
+  const [busDest, setBusDest] = useState<string>("all");
+  const [busDate, setBusDate] = useState<string>("2026-10-26");
+  const [busCategoryFilter, setBusCategoryFilter] = useState<string>("all");
+  const [expandedRouteId, setExpandedRouteId] = useState<string | null>(null);
+  const [busViewMode, setBusViewMode] = useState<"table" | "cards">("cards");
+
+  // Fetch real-time data from redBus operator page
+  const syncLiveBusData = () => {
+    setIsFetchingLive(true);
+    fetchAruthraLiveRoutes()
+      .then((res) => {
+        if (res.routes && res.routes.length > 0) {
+          setBusRoutes(res.routes);
+        }
+        setIsLiveFromRedBus(res.isLive);
+        if (res.lastUpdated) {
+          try {
+            const timeStr = new Date(res.lastUpdated).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+            setLastLiveSyncTime(timeStr);
+          } catch {
+            // ignore
+          }
+        }
+      })
+      .catch((err) => {
+        console.warn("Could not sync live bus routes:", err);
+      })
+      .finally(() => {
+        setIsFetchingLive(false);
+      });
+  };
+
+  // Set initial dynamic date and fetch live redBus data on client mount
+  useEffect(() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 1);
+    setBusDate(d.toISOString().split("T")[0]);
+    syncLiveBusData();
+  }, []);
+
+  // Dynamically derive unique source and destination cities from available routes
+  const ALL_BUS_SOURCES = Array.from(new Set(busRoutes.map((r) => r.source))).filter(Boolean).sort();
+  const ALL_BUS_DESTS = Array.from(new Set(busRoutes.map((r) => r.destination))).filter(Boolean).sort();
+
+  const handleSwapCities = () => {
+    if (busSource !== "all" && busDest !== "all") {
+      const temp = busSource;
+      setBusSource(busDest);
+      setBusDest(temp);
+    }
+  };
+
+  const handleSearchRedBus = () => {
+    if (busSource !== "all" && busDest !== "all") {
+      const matched = busRoutes.find(
+        (r) =>
+          r.source.toLowerCase() === busSource.toLowerCase() &&
+          r.destination.toLowerCase() === busDest.toLowerCase()
+      );
+      if (matched?.redBusUrl) {
+        if (typeof window !== "undefined") {
+          window.open(matched.redBusUrl, "_blank", "noopener,noreferrer");
+        }
+        return;
+      }
+      const srcSlug = busSource.toLowerCase().replace(/\s+/g, "-");
+      const dstSlug = busDest.toLowerCase().replace(/\s+/g, "-");
+      const url = `https://www.redbus.in/bus-tickets/${srcSlug}-to-${dstSlug}?fromCityName=${encodeURIComponent(busSource)}&toCityName=${encodeURIComponent(busDest)}&onward=${busDate}`;
+      if (typeof window !== "undefined") {
+        window.open(url, "_blank", "noopener,noreferrer");
+      }
+    } else {
+      if (typeof window !== "undefined") {
+        window.open(ARUTHRA_OPERATOR_DATA.redBusUrl, "_blank", "noopener,noreferrer");
+      }
+    }
+  };
+
+  const handleResetBusFilters = () => {
+    setBusSource("all");
+    setBusDest("all");
+    setBusCategoryFilter("all");
+  };
+
+  const filteredBusRoutes = busRoutes.filter((r) => {
+    if (busCategoryFilter !== "all" && r.category !== busCategoryFilter) {
+      return false;
+    }
+    if (busSource !== "all" && r.source !== busSource) {
+      return false;
+    }
+    if (busDest !== "all" && r.destination !== busDest) {
+      return false;
+    }
+    return true;
+  });
 
   // Toast System
   const [toast, setToast] = useState<string | null>(null);
@@ -248,10 +362,11 @@ _Namaskar Vishal Travels! Please check vehicle availability for my journey and s
             </div>
           </a>
 
-          {/* 5 Simple Links - Zero Dropdowns */}
+          {/* 6 Simple Links - Zero Dropdowns */}
           <nav className="header-nav">
             <a href="#tour-packages" className="header-nav-link">Packages</a>
             <a href="#routes-trips" className="header-nav-link">Routes</a>
+            <a href="#bus-services" className="header-nav-link" style={{ color: "var(--redbus-primary)", fontWeight: 700 }}>Bus Services</a>
             <a href="#our-fleet" className="header-nav-link">Fleet</a>
             <a href="#fare-calculator" className="header-nav-link">Fare</a>
             <a href="#faq" className="header-nav-link">FAQ</a>
@@ -280,6 +395,7 @@ _Namaskar Vishal Travels! Please check vehicle availability for my journey and s
           <div style={{ background: "#ffffff", borderTop: "1px solid #E5E7EB", padding: "16px 24px", display: "flex", flexDirection: "column", gap: "12px" }}>
             <a href="#tour-packages" className="header-nav-link" onClick={() => setMobileMenuOpen(false)}>Packages</a>
             <a href="#routes-trips" className="header-nav-link" onClick={() => setMobileMenuOpen(false)}>Routes</a>
+            <a href="#bus-services" className="header-nav-link" onClick={() => setMobileMenuOpen(false)} style={{ color: "var(--redbus-primary)", fontWeight: 700 }}>Bus Services (redBus)</a>
             <a href="#our-fleet" className="header-nav-link" onClick={() => setMobileMenuOpen(false)}>Our Fleet</a>
             <a href="#fare-calculator" className="header-nav-link" onClick={() => setMobileMenuOpen(false)}>Fare Estimator</a>
             <a href="#faq" className="header-nav-link" onClick={() => setMobileMenuOpen(false)}>FAQ</a>
@@ -679,15 +795,14 @@ _Namaskar Vishal Travels! Please check vehicle availability for my journey and s
                   <div className="package-img-wrap">
                     {/* Category Pattern Header Overlay */}
                     <div
-                      className={`package-card-header-pattern ${
-                        pkg.category === "pilgrimage"
-                          ? "pattern-mandala"
-                          : pkg.category === "hill-station"
+                      className={`package-card-header-pattern ${pkg.category === "pilgrimage"
+                        ? "pattern-mandala"
+                        : pkg.category === "hill-station"
                           ? "pattern-mountains"
                           : pkg.category === "beach"
-                          ? "pattern-waves"
-                          : "pattern-diagonal"
-                      }`}
+                            ? "pattern-waves"
+                            : "pattern-diagonal"
+                        }`}
                       aria-hidden="true"
                     ></div>
                     <img src={pkg.image} alt={pkg.title} className="package-img" loading="lazy" />
@@ -836,6 +951,436 @@ _Namaskar Vishal Travels! Please check vehicle availability for my journey and s
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Road Divider (Dashed Center-Line Road Marking) */}
+      <div className="pattern-road" aria-hidden="true"></div>
+
+      {/* 6B. OUR BUS SERVICES - ARUTHRA TOURS & TRAVELS (OFFICIAL REDBUS OPERATOR INTEGRATION) (#bus-services) */}
+      <section className="section-pad aruthra-bus-section pattern-dots-subtle" id="bus-services">
+        <div className="container">
+          <div className="section-header">
+            <span className="section-tag" style={{ background: "var(--redbus-light)", color: "var(--redbus-primary)", borderColor: "var(--redbus-border)" }}>
+              OFFICIAL REDBUS OPERATOR PARTNER
+            </span>
+            <h2 className="section-title">Aruthra Tours and Travels Bus Routes &amp; Timings</h2>
+            <p className="section-desc">
+              Daily intercity bus schedules, AC sleeper routes, and direct online reservations powered by redBus. Connecting Coimbatore, Tirupur, Madurai, Sivagangai, and Ramanathapuram.
+            </p>
+          </div>
+
+          {/* 1. Operator Header Card */}
+          <div className="operator-header-card">
+            <div className="operator-header-flex">
+              <div className="operator-brand-col">
+                <div className="operator-badges-row">
+                  <span className="redbus-verified-pill">
+                    <Bus size={14} strokeWidth={2.2} />
+                    redBus Verified Operator
+                  </span>
+                  <span className="operator-rating-pill">
+                    <Star size={14} fill="#D97706" color="#D97706" />
+                    {ARUTHRA_OPERATOR_DATA.rating} / 5 Rating ({ARUTHRA_OPERATOR_DATA.reviewsCount} Reviews)
+                  </span>
+                  <span
+                    className="route-badge round"
+                    style={{
+                      background: isLiveFromRedBus ? "#ECFDF5" : "#EFF6FF",
+                      color: isLiveFromRedBus ? "#065F46" : "var(--blue-800)",
+                      borderColor: isLiveFromRedBus ? "#A7F3D0" : "#BFDBFE",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "6px"
+                    }}
+                  >
+                    <span
+                      style={{
+                        width: "7px",
+                        height: "7px",
+                        borderRadius: "50%",
+                        background: isLiveFromRedBus ? "#10B981" : "#3B82F6",
+                        display: "inline-block"
+                      }}
+                    ></span>
+                    {isLiveFromRedBus
+                      ? `Live redBus Fares${lastLiveSyncTime ? ` (${lastLiveSyncTime})` : ""}`
+                      : `Official Fare: ${ARUTHRA_OPERATOR_DATA.priceRangeFormatted}`}
+                  </span>
+                </div>
+
+                <h3 className="operator-title">
+                  {ARUTHRA_OPERATOR_DATA.name}
+                </h3>
+                <p className="operator-tagline">
+                  {ARUTHRA_OPERATOR_DATA.description}
+                </p>
+
+                <div className="operator-highlights-row">
+                  {ARUTHRA_OPERATOR_DATA.amenities.slice(0, 4).map((amenity, idx) => (
+                    <span key={idx} className="operator-highlight-chip">
+                      <CheckCircle2 size={15} color="#059669" strokeWidth={2.2} />
+                      <span>{amenity}</span>
+                    </span>
+                  ))}
+                  <span className="operator-highlight-chip" style={{ background: "#FEF2F2", borderColor: "#FECACA", color: "var(--redbus-primary)" }}>
+                    <Clock size={15} strokeWidth={2.2} />
+                    <span>Night Departures: 20:30 – 23:15</span>
+                  </span>
+                </div>
+              </div>
+
+              <div className="operator-cta-col">
+                <a
+                  href={ARUTHRA_OPERATOR_DATA.redBusUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-redbus"
+                  title="Open Aruthra Tours and Travels on redBus"
+                >
+                  <Ticket size={18} strokeWidth={2.2} />
+                  <span>View on redBus</span>
+                  <ExternalLink size={16} strokeWidth={2} />
+                </a>
+
+                <a
+                  href={`https://wa.me/${SITE_CONFIG.WHATSAPP_NUMBER}?text=${encodeURIComponent("Namaskar! I want to enquire about Aruthra Tours & Travels bus routes on redBus.")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-redbus-secondary"
+                >
+                  <MessageCircle size={16} strokeWidth={2} />
+                  <span>Operator WhatsApp Help</span>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          {/* 2. Interactive Route Search & Date Console */}
+          <div className="bus-search-card">
+            <div className="bus-search-header">
+              <div>
+                <h4 className="bus-search-title">
+                  <Search size={18} color="var(--redbus-primary)" strokeWidth={2.4} />
+                  <span>Search Bus Routes &amp; Timetables</span>
+                </h4>
+                <span className="bus-search-subtitle">
+                  Select cities and journey date to browse schedules or jump straight to redBus live seat booking.
+                </span>
+              </div>
+
+              <div style={{ display: "inline-flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
+                <button
+                  type="button"
+                  onClick={syncLiveBusData}
+                  disabled={isFetchingLive}
+                  className="btn-text-link"
+                  style={{ display: "inline-flex", alignItems: "center", gap: "5px", fontSize: "0.82rem", color: isLiveFromRedBus ? "#059669" : "var(--blue-800)" }}
+                  title="Sync real-time fares and seat schedules directly from redBus"
+                >
+                  <RotateCcw size={13} className={isFetchingLive ? "animate-spin" : ""} />
+                  <span>{isFetchingLive ? "Syncing Live redBus..." : isLiveFromRedBus ? `Live Fares Synced${lastLiveSyncTime ? ` (${lastLiveSyncTime})` : ""}` : "Sync Live Fares"}</span>
+                </button>
+
+                {(busSource !== "all" || busDest !== "all" || busCategoryFilter !== "all") && (
+                  <button
+                    type="button"
+                    onClick={handleResetBusFilters}
+                    className="btn-text-link"
+                    style={{ display: "inline-flex", alignItems: "center", gap: "4px", fontSize: "0.82rem" }}
+                  >
+                    <RotateCcw size={13} />
+                    <span>Reset Filters</span>
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <div className="bus-search-grid">
+              {/* Source City */}
+              <div className="bus-search-field">
+                <label htmlFor="busSourceSelect">From (Source City)</label>
+                <select
+                  id="busSourceSelect"
+                  className="form-select"
+                  value={busSource}
+                  onChange={(e) => setBusSource(e.target.value)}
+                >
+                  <option value="all">All Departure Cities</option>
+                  {ALL_BUS_SOURCES.map((city) => (
+                    <option key={city} value={city}>
+                      {city}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Swap Button */}
+              <div className="bus-search-swap-col">
+                <button
+                  type="button"
+                  onClick={handleSwapCities}
+                  className="bus-search-swap-btn"
+                  title="Swap Source and Destination"
+                  aria-label="Swap Cities"
+                >
+                  <ArrowLeftRight size={18} strokeWidth={2} />
+                </button>
+              </div>
+
+              {/* Destination City */}
+              <div className="bus-search-field">
+                <label htmlFor="busDestSelect">To (Destination City)</label>
+                <select
+                  id="busDestSelect"
+                  className="form-select"
+                  value={busDest}
+                  onChange={(e) => setBusDest(e.target.value)}
+                >
+                  <option value="all">All Destination Cities</option>
+                  {ALL_BUS_DESTS.map((city) => (
+                    <option key={city} value={city}>
+                      {city}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Date Picker */}
+              <div className="bus-search-field">
+                <label htmlFor="busDateInput">Date of Journey</label>
+                <input
+                  id="busDateInput"
+                  type="date"
+                  className="form-input"
+                  value={busDate}
+                  onChange={(e) => setBusDate(e.target.value)}
+                />
+              </div>
+
+              {/* Search Button */}
+              <div className="bus-search-btn-col">
+                <button
+                  type="button"
+                  onClick={handleSearchRedBus}
+                  className="btn btn-primary bus-search-btn"
+                  style={{ background: "var(--redbus-primary)", borderColor: "var(--redbus-primary)", minHeight: "42px" }}
+                >
+                  <Search size={16} strokeWidth={2.2} />
+                  <span>Search on redBus</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* 3. Category Filter Chips, View Toggle & Counter */}
+          <div className="bus-routes-filter-row">
+            <div className="bus-filter-pills">
+              <button
+                type="button"
+                className={`filter-chip ${busCategoryFilter === "all" ? "active" : ""}`}
+                onClick={() => setBusCategoryFilter("all")}
+              >
+                All Routes ({busRoutes.length})
+              </button>
+              <button
+                type="button"
+                className={`filter-chip ${busCategoryFilter === "coimbatore" ? "active" : ""}`}
+                onClick={() => setBusCategoryFilter("coimbatore")}
+                style={busCategoryFilter === "coimbatore" ? { background: "var(--blue-800)", borderColor: "var(--blue-800)" } : {}}
+              >
+                From Coimbatore ({busRoutes.filter((r) => r.category === "coimbatore").length})
+              </button>
+              <button
+                type="button"
+                className={`filter-chip ${busCategoryFilter === "tirupur" ? "active" : ""}`}
+                onClick={() => setBusCategoryFilter("tirupur")}
+                style={busCategoryFilter === "tirupur" ? { background: "#0E7490", borderColor: "#0E7490" } : {}}
+              >
+                From Tirupur ({busRoutes.filter((r) => r.category === "tirupur").length})
+              </button>
+              <button
+                type="button"
+                className={`filter-chip ${busCategoryFilter === "return" ? "active" : ""}`}
+                onClick={() => setBusCategoryFilter("return")}
+                style={busCategoryFilter === "return" ? { background: "#6D28D9", borderColor: "#6D28D9" } : {}}
+              >
+                Return Corridors ({busRoutes.filter((r) => r.category === "return").length})
+              </button>
+            </div>
+
+            <div style={{ display: "flex", alignItems: "center", gap: "14px", flexWrap: "wrap" }}>
+              <div className="bus-routes-count">
+                Showing <strong>{filteredBusRoutes.length}</strong> of {busRoutes.length} Routes
+              </div>
+
+              {/* View Mode Toggle: Table View vs Cards View */}
+              <div className="bus-view-mode-toggle">
+                <button
+                  type="button"
+                  className={`bus-view-btn ${busViewMode === "table" ? "active" : ""}`}
+                  onClick={() => setBusViewMode("table")}
+                  aria-label="Official Schedule Table"
+                >
+                  <span>📋 Timetable Table</span>
+                </button>
+                <button
+                  type="button"
+                  className={`bus-view-btn ${busViewMode === "cards" ? "active" : ""}`}
+                  onClick={() => setBusViewMode("cards")}
+                  aria-label="Route Cards"
+                >
+                  <span>🗂️ Route Cards</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* 4. Display Bus Routes: Table View or Cards View */}
+          {filteredBusRoutes.length === 0 ? (
+            <div style={{ background: "#ffffff", padding: "48px 24px", borderRadius: "16px", textAlign: "center", border: "1px dashed #CBD5E1", margin: "24px 0" }}>
+              <Bus size={42} color="var(--redbus-primary)" strokeWidth={1.5} style={{ margin: "0 auto 12px" }} />
+              <h4 style={{ fontSize: "1.2rem", color: "var(--blue-900)", marginBottom: "6px" }}>
+                No Direct Scheduled Routes Found
+              </h4>
+              <p style={{ color: "var(--text-muted)", fontSize: "0.9rem", maxWidth: "480px", margin: "0 auto 18px" }}>
+                We could not find a scheduled Aruthra route matching &ldquo;{busSource}&rdquo; to &ldquo;{busDest}&rdquo;. You can reset your search or view all connected services on redBus.
+              </p>
+              <div style={{ display: "inline-flex", gap: "10px", flexWrap: "wrap", justifyContent: "center" }}>
+                <button
+                  type="button"
+                  onClick={handleResetBusFilters}
+                  className="btn btn-secondary"
+                  style={{ minHeight: "42px" }}
+                >
+                  <RotateCcw size={15} />
+                  <span>Reset Filters</span>
+                </button>
+                <a
+                  href={ARUTHRA_OPERATOR_DATA.redBusUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-redbus"
+                  style={{ minHeight: "42px" }}
+                >
+                  <Ticket size={16} />
+                  <span>Check on redBus</span>
+                  <ExternalLink size={14} />
+                </a>
+              </div>
+            </div>
+          ) : busViewMode === "table" ? (
+            /* OFFICIAL REDBUS TIMETABLE SCHEDULE TABLE */
+            <div className="bus-table-container">
+              <div className="bus-table-scroll">
+                <table className="bus-official-table">
+                  <thead>
+                    <tr>
+                      <th>Routes</th>
+                      <th>Bus Type</th>
+                      <th>Duration</th>
+                      <th>First Bus</th>
+                      <th>Last Bus</th>
+                      <th>Starting Price</th>
+                      <th>Online Booking</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredBusRoutes.map((route) => (
+                      <tr key={route.id}>
+                        <td className="bus-table-route-cell">
+                          <strong>{route.source} to {route.destination}</strong>
+                          <span>{route.distanceKm} KM • Highway Corridor</span>
+                        </td>
+                        <td>
+                          <span className="bus-table-type-badge">{route.busType}</span>
+                        </td>
+                        <td>
+                          <div style={{ display: "flex", alignItems: "center", gap: "5px", color: "var(--text-main)" }}>
+                            <Clock size={14} color="#64748B" />
+                            <span>{route.durationFormatted}</span>
+                          </div>
+                        </td>
+                        <td>
+                          <strong style={{ color: "var(--blue-900)" }}>{route.firstBus}</strong>
+                        </td>
+                        <td>
+                          <strong style={{ color: "var(--blue-900)" }}>{route.lastBus}</strong>
+                        </td>
+                        <td>
+                          <div className="bus-table-price">
+                            {route.startingPriceFormatted}
+                            <span>Starting Tariff</span>
+                          </div>
+                        </td>
+                        <td>
+                          <a
+                            href={route.redBusUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="btn-redbus"
+                            style={{ minHeight: "36px", padding: "0 12px", fontSize: "0.82rem" }}
+                            title={`Book ${route.source} to ${route.destination} on redBus`}
+                          >
+                            <span>Book on redBus</span>
+                            <ExternalLink size={13} strokeWidth={2} />
+                          </a>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          ) : (
+            /* CLEAN REDBUS ROUTE CARDS (EXACT DESIGN FROM SCREENSHOT) */
+            <div className="bus-routes-grid">
+              {filteredBusRoutes.map((route) => (
+                <div key={route.id} className="bus-route-card-clean">
+                  <div>
+                    <div className="bus-route-options-count">{route.busOptionsText}</div>
+
+                    <div className="bus-route-main-row">
+                      <h3 className="bus-route-name">{route.source} to {route.destination}</h3>
+                      <div className="bus-route-price-box">
+                        <div className="bus-route-price-num">{route.startingPriceFormatted}</div>
+                        <span className="bus-route-onwards-label">Onwards</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="bus-route-dotted-divider" aria-hidden="true"></div>
+
+                    <div className="bus-route-bottom-row">
+                      <a
+                        href={route.redBusUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn-book-now-redbus"
+                        title={`Book ${route.source} to ${route.destination} on redBus`}
+                      >
+                        BOOK NOW
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* 5. Data Accuracy & Integration Transparency Banner */}
+          <div className="aruthra-notice-box">
+            <div className="aruthra-notice-icon">
+              <Info size={22} strokeWidth={2.2} />
+            </div>
+            <div className="aruthra-notice-text">
+              <h4>Data Transparency &amp; Real-Time redBus Booking</h4>
+              <p>
+                To guarantee 100% data integrity, seat availability, live GPS bus tracking, and dynamic seat layout selection are synchronized directly with redBus. Clicking any booking link connects you straight to the authorized redBus ticketing desk with instant PNR issuance and M-Ticket delivery to your phone.
+              </p>
+            </div>
           </div>
         </div>
       </section>
@@ -1389,6 +1934,7 @@ _Namaskar Vishal Travels! Please check vehicle availability for my journey and s
               <ul className="footer-nav-list">
                 <li><a href="#tour-packages">Tour Packages</a></li>
                 <li><a href="#routes-trips">Popular Routes</a></li>
+                <li><a href="#bus-services" style={{ color: "var(--redbus-primary)", fontWeight: 700 }}>Bus Services (Aruthra redBus)</a></li>
                 <li><a href="#our-fleet">Our Fleet (13–49 Seater)</a></li>
                 <li><a href="#fare-calculator">Fare Estimator</a></li>
                 <li><a href="#faq">FAQ &amp; Cancellation Policy</a></li>
